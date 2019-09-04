@@ -29,7 +29,6 @@ namespace AvlTree
             tree.Remove(19);
             tree.Remove(76);
             tree.Remove(90);
-            ;
         }
     }
 }
