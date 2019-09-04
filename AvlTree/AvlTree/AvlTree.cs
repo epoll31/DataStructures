@@ -15,7 +15,7 @@ namespace AvlTree
             Count = 0;
         }
 
-        private Node<T> Search(T value)
+        private Node<T> GetNode(T value)
         {
             var currentNode = Head;
 
@@ -79,6 +79,94 @@ namespace AvlTree
             }
 
             Balance(currentNode);
+        }
+        public void Remove(T value) => Remove(GetNode(value));
+        private void Remove(Node<T> nodeToRemove)
+        {
+            if (nodeToRemove.LeftChild == null && nodeToRemove.RightChild == null)
+            {//no children
+                if (nodeToRemove.Parent == null)
+                {
+                    Head = null;
+                    Count--;
+                    return;
+                }
+                else if (nodeToRemove.IsLeftChild)
+                {
+                    nodeToRemove.Parent.LeftChild = null;
+                    Count--;
+                }
+                else
+                {
+                    nodeToRemove.Parent.RightChild = null;
+                    Count--;
+                }
+            }
+            else if (nodeToRemove.LeftChild != null && nodeToRemove.RightChild == null)
+            {//left child
+                if (nodeToRemove.Parent == null)
+                {
+                    Head = nodeToRemove.LeftChild;
+                    nodeToRemove.LeftChild.Parent = null;
+                    Count--;
+                    return;
+                }
+                else if (nodeToRemove.IsLeftChild)
+                {
+                    nodeToRemove.Parent.LeftChild = nodeToRemove.LeftChild;
+                    nodeToRemove.LeftChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+                else
+                {
+                    nodeToRemove.Parent.RightChild = nodeToRemove.LeftChild;
+                    nodeToRemove.LeftChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+            }
+            else if (nodeToRemove.LeftChild == null && nodeToRemove.RightChild != null)
+            {//right child
+                if (nodeToRemove.Parent == null)
+                {
+                    Head = nodeToRemove.RightChild;
+                    nodeToRemove.RightChild.Parent = null;
+                    Count--;
+                    return;
+                }
+                else if (nodeToRemove.IsLeftChild)
+                {
+                    nodeToRemove.Parent.LeftChild = nodeToRemove.RightChild;
+                    nodeToRemove.RightChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+                else
+                {
+                    nodeToRemove.Parent.RightChild = nodeToRemove.RightChild;
+                    nodeToRemove.RightChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+            }
+            else
+            {//both children
+                Node<T> replacementNode = nodeToRemove.LeftChild;
+                while (replacementNode.RightChild != null)
+                {
+                    replacementNode = replacementNode.RightChild;
+                }
+
+                nodeToRemove.Value = replacementNode.Value;
+                Remove(replacementNode);
+                if (nodeToRemove.LeftChild != null)
+                {
+                    nodeToRemove = nodeToRemove.LeftChild;
+                }
+                else if (nodeToRemove.RightChild != null)
+                {
+                    nodeToRemove = nodeToRemove.RightChild;
+                }
+            }
+
+            Balance(nodeToRemove.Parent);
         }
 
         private void Balance(Node<T> currentNode)
@@ -146,7 +234,7 @@ namespace AvlTree
         {
             Node<T> newHead = currentNode.LeftChild;
 
-            if(currentNode.Parent == null)
+            if (currentNode.Parent == null)
             {
                 Head = newHead;
                 newHead.Parent = null;
