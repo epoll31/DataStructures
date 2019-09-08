@@ -13,6 +13,9 @@ namespace RedBlackTree
         public Node<T> RightChild { get; internal set; }
         public bool IsRed { get; internal set; }
         public bool IsLeftChild => Parent.LeftChild == this;
+        public bool Is2Node => !LeftChild.IsRed && !LeftChild.LeftChild.IsRed;
+        public bool Is4Node => !LeftChild.IsRed && !RightChild.IsRed;
+        public bool IsLeafNode => LeftChild == null && RightChild == null;
 
         public Node(T value)
         {

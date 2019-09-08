@@ -15,6 +15,27 @@ namespace RedBlackTree
             Count = 0;
         }
 
+        public Node<T> GetNode(T value)
+        {
+            Node<T> currentNode = Head;
+            while (currentNode != null)
+            {
+                if (value.CompareTo(currentNode.Value) == 0)
+                {
+                    return currentNode;
+                }
+                else if (value.CompareTo(currentNode.Value) < 0)
+                {
+                    currentNode = currentNode.LeftChild;
+                }
+                else if (value.CompareTo(currentNode.Value) > 0)
+                {
+                    currentNode = currentNode.RightChild;
+                }
+            }
+            return null;
+        }
+
         public void Add(T value)
         {
             if (Head == null)
@@ -61,6 +82,158 @@ namespace RedBlackTree
             }
 
             Balance(currentNode);
+        }
+
+        public void Remove(T value)
+        {
+            if (Head == null)
+            {
+                return;
+            }
+
+            Node<T> currentNode = Head;
+            while (currentNode != null)
+            {
+                if (value.CompareTo(currentNode.Value) < 0)
+                {
+                    if (currentNode.LeftChild.Is2Node)
+                    {
+                        MoveRedLeft(currentNode);
+                    }
+
+                    currentNode = currentNode.LeftChild;
+                }
+                else if (value.CompareTo(currentNode.Value) >= 0)
+                {
+                    if (currentNode.LeftChild.IsRed)
+                    {
+                        currentNode = RotateRight(currentNode/*.LeftChild??*/);
+                    }
+
+                    if (value.CompareTo(currentNode.Value) == 0)
+                    {
+                        if (currentNode.IsLeafNode)
+                        {
+                            if (currentNode.IsLeftChild)
+                            {
+                                currentNode.Parent.LeftChild = null;//removed
+                            }
+                            else
+                            {
+                                currentNode.Parent.RightChild = null;//removed
+                            }
+                            Count--;
+                            break;
+                        }
+                        else
+                        {
+                            if (currentNode.RightChild.Is2Node)
+                            {
+                                MoveRedRight(currentNode);
+                                currentNode = currentNode.RightChild;
+                                continue;
+                            }
+                            else
+                            {
+                                if (currentNode.RightChild.Is2Node)
+                                {
+                                    MoveRedRight(currentNode);
+                                }
+                                currentNode = currentNode.RightChild;
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            FixUp(currentNode.Parent);
+        }
+
+        private void RemoveSpecificNode(Node<T> nodeToRemove)
+        {
+            if (nodeToRemove.LeftChild == null && nodeToRemove.RightChild == null)
+            {//no children
+                if (nodeToRemove.Parent == null)
+                {
+                    Head = null;
+                    Count--;
+                    return;
+                }
+                else if (nodeToRemove.IsLeftChild)
+                {
+                    nodeToRemove.Parent.LeftChild = null;
+                    Count--;
+                }
+                else
+                {
+                    nodeToRemove.Parent.RightChild = null;
+                    Count--;
+                }
+            }
+            else if (nodeToRemove.LeftChild != null && nodeToRemove.RightChild == null)
+            {//left child
+                if (nodeToRemove.Parent == null)
+                {
+                    Head = nodeToRemove.LeftChild;
+                    nodeToRemove.LeftChild.Parent = null;
+                    Count--;
+                    return;
+                }
+                else if (nodeToRemove.IsLeftChild)
+                {
+                    nodeToRemove.Parent.LeftChild = nodeToRemove.LeftChild;
+                    nodeToRemove.LeftChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+                else
+                {
+                    nodeToRemove.Parent.RightChild = nodeToRemove.LeftChild;
+                    nodeToRemove.LeftChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+            }
+            else if (nodeToRemove.LeftChild == null && nodeToRemove.RightChild != null)
+            {//right child
+                if (nodeToRemove.Parent == null)
+                {
+                    Head = nodeToRemove.RightChild;
+                    nodeToRemove.RightChild.Parent = null;
+                    Count--;
+                    return;
+                }
+                else if (nodeToRemove.IsLeftChild)
+                {
+                    nodeToRemove.Parent.LeftChild = nodeToRemove.RightChild;
+                    nodeToRemove.RightChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+                else
+                {
+                    nodeToRemove.Parent.RightChild = nodeToRemove.RightChild;
+                    nodeToRemove.RightChild.Parent = nodeToRemove.Parent;
+                    Count--;
+                }
+            }
+            else
+            {//both children
+                Node<T> replacementNode = nodeToRemove.LeftChild;
+                while (replacementNode.RightChild != null)
+                {
+                    replacementNode = replacementNode.RightChild;
+                }
+
+                nodeToRemove.Value = replacementNode.Value;
+                RemoveSpecificNode(replacementNode);
+                if (nodeToRemove.LeftChild != null)
+                {
+                    nodeToRemove = nodeToRemove.LeftChild;
+                }
+                else if (nodeToRemove.RightChild != null)
+                {
+                    nodeToRemove = nodeToRemove.RightChild;
+                }
+            }
         }
 
         private void Balance(Node<T> currentNode)
@@ -162,6 +335,72 @@ namespace RedBlackTree
                 node.LeftChild.IsRed = false;
                 node.RightChild.IsRed = false;
             }
+        }
+
+        private void MoveRedLeft(Node<T> node)
+        {
+            FlipColor(node);
+
+            if (node.RightChild.LeftChild.IsRed)
+            {
+                RotateRight(node.RightChild);
+                node = RotateLeft(node);
+            }
+
+            FlipColor(node);
+
+            if (node.RightChild.RightChild.IsRed)
+            {
+                RotateLeft(node.RightChild);
+            }
+        }
+
+        private void MoveRedRight(Node<T> node)
+        {
+            FlipColor(node);
+
+            if (node.LeftChild.LeftChild.IsRed)
+            {
+                node = RotateRight(node);
+            }
+
+            FlipColor(node);
+        }
+
+        private void FixUp(Node<T> currentNode)
+        {
+            if (currentNode == null)
+            {
+                return;
+            }
+
+            if (currentNode.RightChild.IsRed)
+            {
+                currentNode = RotateLeft(currentNode);
+            }
+
+            if (currentNode.LeftChild.IsRed && currentNode.LeftChild.LeftChild.IsRed)
+            {
+                currentNode = RotateRight(currentNode);
+            }
+
+            if (currentNode.Is4Node)
+            {
+                FlipColor(currentNode);
+            }
+
+            Node<T> leftChild = currentNode.LeftChild;
+            if (leftChild.RightChild.IsRed)
+            {
+                leftChild = RotateLeft(leftChild);
+            }
+
+            if (leftChild.LeftChild.IsRed && leftChild.LeftChild.LeftChild.IsRed)
+            {
+                leftChild = RotateRight(leftChild);
+            }
+
+            FixUp(currentNode.Parent);
         }
     }
 }
