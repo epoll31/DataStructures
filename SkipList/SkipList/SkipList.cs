@@ -105,7 +105,23 @@ namespace SkipList
 
         public bool Contains(T item)
         {
-            throw new NotImplementedException();
+            Node<T> currentNode = head;
+            for (int i = head.Height - 1; i >= 0; i--)
+            {
+                if (item.CompareTo(currentNode[i].Value) > 0)//move right
+                {
+                    currentNode = currentNode[i++];
+                }
+                else if (item.CompareTo(currentNode[i].Value) < 0)//move down
+                {
+                    continue;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
