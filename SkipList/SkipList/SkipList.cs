@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace SkipList
@@ -30,9 +31,10 @@ namespace SkipList
             head = newHead;
         }
 
-        public void Add(T item, int height = -1)
+        public void Add(T item, int height)
         {
-            Node<T> newNode = new Node<T>(item, height == -1 ? GetNewHeight() : height);
+            Node<T> newNode = new Node<T>(item, height);
+            Console.WriteLine(newNode.Height);
 
             if (head.Height < newNode.Height)
             {
@@ -41,20 +43,21 @@ namespace SkipList
             }
 
             Node<T> currentNode = head;
-            for (int i = head.Height - 1; i >= 0; i--)
+            for (int i = newNode.Height - 1; i >= 0; i--)
             {
+                if (currentNode[i] == null && currentNode.Height >= i + 1 && currentNode[i + 1] != null)
+                {
+                    currentNode[i] = currentNode[i + 1];
+                }
+
                 if (item.CompareTo(currentNode[i].Value) > 0)//move right
                 {
                     if (currentNode[i][i] == null)
                     {
-                        currentNode[i] = newNode;
-                        i++;
+                        currentNode[i][i] = newNode;
                     }
-                    else
-                    {
-                        currentNode = currentNode[i];
-                        i++;
-                    }
+                    currentNode = currentNode[i];
+                    i++;
                 }
                 else if (item.CompareTo(currentNode[i].Value) < 0)//move down
                 {
@@ -65,13 +68,18 @@ namespace SkipList
                     }
                     continue;
                 }
+                else
+                {
+                    continue;
+                }
             }
 
+            Count++;
         }
 
         public void Add(T Item)
         {
-
+            Add(Item, GetNewHeight());
         }
 
         public bool Remove(T item)
@@ -91,7 +99,8 @@ namespace SkipList
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            head = new Node<T>(default, 0);
+            Count = 0;
         }
 
         public bool Contains(T item)
