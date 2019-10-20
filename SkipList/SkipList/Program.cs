@@ -22,7 +22,16 @@ namespace SkipList
             list.Add("Gil", 1);
             list.Add("Hank", 2);
 
-            list.Remove("Frank");
+            foreach(string value in list)
+            {
+                Console.WriteLine(value);
+            }
+            
+            list.Remove(list[5]);
+            foreach (string value in list)
+            {
+                Console.WriteLine(value);
+            }
         }
     }
 }

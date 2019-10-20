@@ -6,8 +6,21 @@ using System.Text;
 
 namespace SkipList
 {
-    class SkipList<T> : ICollection<T> where T : IComparable
+    public class SkipList<T> : ICollection<T> where T : IComparable
     {
+        public T this[int i]
+        {
+            get
+            {
+                Node<T> currentNode = head;
+                for (; i >= 0; i--)
+                {
+                    currentNode = currentNode[0];
+                }
+                return currentNode.Value;
+            }
+        }
+
         public int Count { get; private set; }
 
         public bool IsReadOnly => false;
@@ -114,7 +127,7 @@ namespace SkipList
                 }
             }
 
-            if (head[head.Height-1] == null)
+            if (head[head.Height - 1] == null)
             {
                 NewHead(false);
             }
@@ -174,12 +187,24 @@ namespace SkipList
 
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            Node<T> current = head;
+            while (true)
+            {
+                current = current[0];
+                if (current != null)
+                {
+                    yield return current.Value;
+                }
+                else
+                {
+                    yield break;
+                }
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
     }
 }
