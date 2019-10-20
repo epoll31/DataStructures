@@ -20,8 +20,6 @@ namespace HeapTree
             {
                 heap.Insert(random.Next(0, 1000));
             }
-            
-            
 
             while(heap.Count > 0)
             {
