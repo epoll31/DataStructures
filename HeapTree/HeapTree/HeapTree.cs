@@ -8,6 +8,8 @@ namespace HeapTree
     {
         private List<T> heap;
 
+        public int Count => heap.Count;
+
         public HeapTree()
         {
             heap = new List<T>();
@@ -48,9 +50,9 @@ namespace HeapTree
 
             while (true)
             {
-                if (heap[leftChildIndex].CompareTo(heap[rightChildIndex]) > 0)//right is smaller
+                if (rightChildIndex < heap.Count && heap[leftChildIndex].CompareTo(heap[rightChildIndex]) > 0)//right is smaller
                 {
-                    if (leftChildIndex < heap.Count && heap[rightChildIndex].CompareTo(heap[index]) > 0)//swap down
+                    if (rightChildIndex < heap.Count && heap[rightChildIndex].CompareTo(heap[index]) < 0)//swap down
                     {
                         T temp = heap[rightChildIndex];
                         heap[rightChildIndex] = heap[index];
@@ -66,7 +68,7 @@ namespace HeapTree
                 }
                 else //left is smaller
                 {
-                    if (leftChildIndex < heap.Count && heap[leftChildIndex].CompareTo(heap[index]) > 0)//swap down
+                    if (leftChildIndex < heap.Count && heap[leftChildIndex].CompareTo(heap[index]) < 0)//swap down
                     {
                         T temp = heap[leftChildIndex];
                         heap[leftChildIndex] = heap[index];
@@ -86,5 +88,21 @@ namespace HeapTree
         private int GetParent(int index) => (index - 1) / 2;
         private int GetLeftChild(int index) => index * 2 + 1;
         private int GetRightChild(int index) => index * 2 + 2;
+
+        public static T[] HeapSort(T[] data)
+        {
+            T[] returnData = new T[data.Length];
+            HeapTree<T> heap = new HeapTree<T>();
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                heap.Insert(data[i]);
+            }
+            for (int i = 0; i < data.Length; i++)
+            {
+                returnData[i] = heap.Pop();
+            }
+            return returnData;
+        }
     }
 }
