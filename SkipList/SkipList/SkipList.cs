@@ -21,20 +21,32 @@ namespace SkipList
             random = new Random();
         }
 
-        private void NewHead()
+        private void NewHead() => NewHead(true);
+        private void NewHead(bool shouldAdd)
         {
-            Node<T> newHead = new Node<T>(default, head.Height + 1);
-            for (int i = 0; i < head.Height; i++)
+            if (shouldAdd)
             {
-                newHead[i] = head[i];
+                Node<T> newHead = new Node<T>(default, head.Height + 1);
+                for (int i = 0; i < head.Height; i++)
+                {
+                    newHead[i] = head[i];
+                }
+                head = newHead;
             }
-            head = newHead;
+            else
+            {
+                Node<T> newHead = new Node<T>(default, head.Height - 1);
+                for (int i = 0; i < newHead.Height; i++)
+                {
+                    newHead[i] = head[i];
+                }
+                head = newHead;
+            }
         }
 
         public void Add(T item, int height)
         {
             Node<T> newNode = new Node<T>(item, height);
-            Console.WriteLine(newNode.Height);
 
             if (head.Height < newNode.Height)
             {
@@ -84,7 +96,38 @@ namespace SkipList
 
         public bool Remove(T item)
         {
-            throw new NotImplementedException();
+            Node<T> currentNode = head;
+            for (int i = head.Height - 1; i >= 0; i--)
+            {
+                if (item.CompareTo(currentNode[i].Value) < 0)//move down
+                {
+                    continue;
+                }
+                else if (item.CompareTo(currentNode[i].Value) > 0)//move right
+                {
+                    currentNode = currentNode[i++];
+                }
+                else//delete currentNode[i]
+                {
+                    currentNode[i] = currentNode[i][i];
+                    currentNode = head;
+                }
+            }
+
+            if (head[head.Height-1] == null)
+            {
+                NewHead(false);
+            }
+
+            if (!Contains(item))
+            {
+                Count--;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private int GetNewHeight()
@@ -108,11 +151,11 @@ namespace SkipList
             Node<T> currentNode = head;
             for (int i = head.Height - 1; i >= 0; i--)
             {
-                if (item.CompareTo(currentNode[i].Value) > 0)//move right
+                if (currentNode[i] != null && item.CompareTo(currentNode[i].Value) > 0)//move right
                 {
                     currentNode = currentNode[i++];
                 }
-                else if (item.CompareTo(currentNode[i].Value) < 0)//move down
+                else if (currentNode[i] == null || item.CompareTo(currentNode[i].Value) < 0)//move down
                 {
                     continue;
                 }
