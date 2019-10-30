@@ -110,5 +110,17 @@ namespace PriorityQueue
         private int GetParent(int index) => (index - 1) / 2;
         private int GetLeftChild(int index) => index * 2 + 1;
         private int GetRightChild(int index) => index * 2 + 2;
+
+        public bool Contains(TValue value)
+        {
+            for (int i = 0; i < heap.Count; i++)
+            {
+                if (heap[i].Item2.Contains(value))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
